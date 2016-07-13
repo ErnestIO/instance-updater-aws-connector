@@ -15,6 +15,7 @@ var (
 	ErrDatacenterRegionInvalid      = errors.New("Datacenter Region invalid")
 	ErrDatacenterCredentialsInvalid = errors.New("Datacenter credentials invalid")
 	ErrNetworkInvalid               = errors.New("Network invalid")
+	ErrInstanceAWSIDInvalid         = errors.New("Instance aws id invalid")
 	ErrInstanceNameInvalid          = errors.New("Instance name invalid")
 	ErrInstanceImageInvalid         = errors.New("Instance image invalid")
 	ErrInstanceTypeInvalid          = errors.New("Instance type invalid")
@@ -53,6 +54,10 @@ func (ev *Event) Validate() error {
 
 	if ev.NetworkAWSID == "" {
 		return ErrNetworkInvalid
+	}
+
+	if ev.InstanceAWSID == "" {
+		return ErrInstanceAWSIDInvalid
 	}
 
 	if ev.InstanceName == "" {

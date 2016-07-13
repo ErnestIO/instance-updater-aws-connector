@@ -26,6 +26,7 @@ var (
 		DatacenterAccessToken: "token",
 		NetworkAWSID:          "subnet-00000000",
 		SecurityGroupAWSIDs:   []string{"sg-0000000"},
+		InstanceAWSID:         "i-00000000",
 		InstanceName:          "test",
 		InstanceType:          "t2.micro",
 		InstanceImage:         "ami-0000000",
@@ -83,7 +84,7 @@ func TestEvent(t *testing.T) {
 					So(e.NetworkAWSID, ShouldEqual, "subnet-00000000")
 					So(len(e.SecurityGroupAWSIDs), ShouldEqual, 1)
 					So(e.SecurityGroupAWSIDs[0], ShouldEqual, "sg-0000000")
-					So(e.InstanceAWSID, ShouldEqual, "")
+					So(e.InstanceAWSID, ShouldEqual, "i-00000000")
 					So(e.InstanceName, ShouldEqual, "test")
 					So(e.InstanceImage, ShouldEqual, "ami-0000000")
 					So(e.InstanceType, ShouldEqual, "t2.micro")
@@ -213,6 +214,22 @@ func TestEvent(t *testing.T) {
 				Convey("It should error", func() {
 					So(err, ShouldNotBeNil)
 					So(err.Error(), ShouldEqual, "Network invalid")
+				})
+			})
+		})
+
+		Convey("With no instance aws id", func() {
+			testEventInvalid := testEvent
+			testEventInvalid.InstanceAWSID = ""
+			invalid, _ := json.Marshal(testEventInvalid)
+
+			Convey("When validating the event", func() {
+				var e Event
+				e.Process(invalid)
+				err := e.Validate()
+				Convey("It should error", func() {
+					So(err, ShouldNotBeNil)
+					So(err.Error(), ShouldEqual, "Instance aws id invalid")
 				})
 			})
 		})
