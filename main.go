@@ -6,7 +6,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -35,8 +34,8 @@ func eventHandler(m *nats.Msg) {
 		return
 	}
 
-	if i.Valid() == false {
-		i.Error(errors.New("Instance is invalid"))
+	if err = i.Validate(); err != nil {
+		i.Error(err)
 		return
 	}
 
