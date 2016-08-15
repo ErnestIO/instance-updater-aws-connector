@@ -49,13 +49,25 @@ func updateInstance(ev *Event) error {
 		Credentials: creds,
 	})
 
-	var stopreq ec2.StopInstancesInput
-	var startreq ec2.StartInstancesInput
+	builtInstance := ec2.DescribeInstancesInput{
+		InstanceIds: []*string{aws.String(ev.InstanceAWSID)},
+	}
 
-	stopreq.InstanceIds = append(stopreq.InstanceIds, aws.String(ev.InstanceAWSID))
-	startreq.InstanceIds = append(startreq.InstanceIds, aws.String(ev.InstanceAWSID))
+	err := svc.WaitUntilInstanceStatusOk(&builtInstance)
+	if err != nil {
+		return err
+	}
 
-	_, err := svc.StopInstances(&stopreq)
+	stopreq := ec2.StopInstancesInput{
+		InstanceIds: []*string{aws.String(ev.InstanceAWSID)},
+	}
+
+	_, err = svc.StopInstances(&stopreq)
+	if err != nil {
+		return err
+	}
+
+	err = svc.WaitUntilInstanceStopped(&builtInstance)
 	if err != nil {
 		return err
 	}
@@ -72,7 +84,16 @@ func updateInstance(ev *Event) error {
 		return err
 	}
 
+	startreq := ec2.StartInstancesInput{
+		InstanceIds: []*string{aws.String(ev.InstanceAWSID)},
+	}
+
 	_, err = svc.StartInstances(&startreq)
+	if err != nil {
+		return err
+	}
+
+	err = svc.WaitUntilInstanceRunning(&builtInstance)
 	if err != nil {
 		return err
 	}
