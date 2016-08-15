@@ -49,6 +49,17 @@ func updateInstance(ev *Event) error {
 		Credentials: creds,
 	})
 
+	var stopreq ec2.StopInstancesInput
+	var startreq ec2.StartInstancesInput
+
+	stopreq.InstanceIds = append(stopreq.InstanceIds, aws.String(ev.InstanceAWSID))
+	startreq.InstanceIds = append(startreq.InstanceIds, aws.String(ev.InstanceAWSID))
+
+	_, err := svc.StopInstances(&stopreq)
+	if err != nil {
+		return err
+	}
+
 	req := ec2.ModifyInstanceAttributeInput{
 		InstanceId: aws.String(ev.InstanceAWSID),
 		InstanceType: &ec2.AttributeValue{
@@ -56,7 +67,12 @@ func updateInstance(ev *Event) error {
 		},
 	}
 
-	_, err := svc.ModifyInstanceAttribute(&req)
+	_, err = svc.ModifyInstanceAttribute(&req)
+	if err != nil {
+		return err
+	}
+
+	_, err = svc.StartInstances(&startreq)
 	if err != nil {
 		return err
 	}
