@@ -53,7 +53,11 @@ func updateInstance(ev *Event) error {
 		InstanceIds: []*string{aws.String(ev.InstanceAWSID)},
 	}
 
-	err := svc.WaitUntilInstanceStatusOk(&builtInstance)
+	okInstance := ec2.DescribeInstanceStatusInput{
+		InstanceIds: []*string{aws.String(ev.InstanceAWSID)},
+	}
+
+	err := svc.WaitUntilInstanceStatusOk(&okInstance)
 	if err != nil {
 		return err
 	}
