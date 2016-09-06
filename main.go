@@ -81,6 +81,11 @@ func updateInstance(ev *Event) error {
 		InstanceType: &ec2.AttributeValue{
 			Value: aws.String(ev.InstanceType),
 		},
+		Groups: []*string{},
+	}
+
+	for _, sg := range ev.SecurityGroupAWSIDs {
+		req.Groups = append(req.Groups, aws.String(sg))
 	}
 
 	_, err = svc.ModifyInstanceAttribute(&req)
