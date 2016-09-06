@@ -66,6 +66,7 @@ func updateInstance(ev *Event) error {
 		InstanceIds: []*string{aws.String(ev.InstanceAWSID)},
 	}
 
+	// power off the instance
 	_, err = svc.StopInstances(&stopreq)
 	if err != nil {
 		return err
@@ -76,12 +77,23 @@ func updateInstance(ev *Event) error {
 		return err
 	}
 
+	// resize the instance
 	req := ec2.ModifyInstanceAttributeInput{
 		InstanceId: aws.String(ev.InstanceAWSID),
 		InstanceType: &ec2.AttributeValue{
 			Value: aws.String(ev.InstanceType),
 		},
-		Groups: []*string{},
+	}
+
+	_, err = svc.ModifyInstanceAttribute(&req)
+	if err != nil {
+		return err
+	}
+
+	// update instance security groups
+	req = ec2.ModifyInstanceAttributeInput{
+		InstanceId: aws.String(ev.InstanceAWSID),
+		Groups:     []*string{},
 	}
 
 	for _, sg := range ev.SecurityGroupAWSIDs {
@@ -93,6 +105,7 @@ func updateInstance(ev *Event) error {
 		return err
 	}
 
+	// power the instance back on
 	startreq := ec2.StartInstancesInput{
 		InstanceIds: []*string{aws.String(ev.InstanceAWSID)},
 	}
