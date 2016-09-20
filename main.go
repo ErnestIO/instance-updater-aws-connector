@@ -5,6 +5,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"runtime"
@@ -40,6 +41,27 @@ func eventHandler(m *nats.Msg) {
 	}
 
 	i.Complete()
+}
+
+func getInstanceByID(svc *ec2.EC2, id string) (*ec2.Instance, error) {
+	req := ec2.DescribeInstancesInput{
+		InstanceIds: []*string{aws.String(id)},
+	}
+
+	resp, err := svc.DescribeInstances(&req)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(resp.Reservations) != 1 {
+		return nil, errors.New("Could not find any instance reservations")
+	}
+
+	if len(resp.Reservations[0].Instances) != 1 {
+		return nil, errors.New("Could not find an instance with that ID")
+	}
+
+	return resp.Reservations[0].Instances[0], nil
 }
 
 func updateInstance(ev *Event) error {
@@ -118,6 +140,15 @@ func updateInstance(ev *Event) error {
 	err = svc.WaitUntilInstanceRunning(&builtInstance)
 	if err != nil {
 		return err
+	}
+
+	instance, err := getInstanceByID(svc, ev.InstanceAWSID)
+	if err != nil {
+		return err
+	}
+
+	if instance.PublicIpAddress != nil {
+		ev.InstancePublicIP = *instance.PublicIpAddress
 	}
 
 	return nil
