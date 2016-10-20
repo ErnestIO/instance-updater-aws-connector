@@ -148,7 +148,7 @@ func updateInstance(ev *Event) error {
 	}
 
 	if instance.PublicIpAddress != nil {
-		ev.InstancePublicIP = *instance.PublicIpAddress
+		ev.PublicIP = *instance.PublicIpAddress
 	}
 
 	return nil

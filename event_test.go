@@ -31,10 +31,10 @@ var (
 		NetworkAWSID:          "subnet-00000000",
 		SecurityGroupAWSIDs:   []string{"sg-0000000"},
 		InstanceAWSID:         "i-00000000",
-		InstanceName:          "test",
+		Name:                  "test",
 		InstanceType:          "t2.micro",
-		InstanceImage:         "ami-0000000",
-		InstanceKeyPair:       "test",
+		Image:                 "ami-0000000",
+		KeyPair:               "test",
 	}
 )
 
@@ -88,10 +88,10 @@ func TestEvent(t *testing.T) {
 					So(len(e.SecurityGroupAWSIDs), ShouldEqual, 1)
 					So(e.SecurityGroupAWSIDs[0], ShouldEqual, "sg-0000000")
 					So(e.InstanceAWSID, ShouldEqual, "i-00000000")
-					So(e.InstanceName, ShouldEqual, "test")
-					So(e.InstanceImage, ShouldEqual, "ami-0000000")
+					So(e.Name, ShouldEqual, "test")
+					So(e.Image, ShouldEqual, "ami-0000000")
 					So(e.InstanceType, ShouldEqual, "t2.micro")
-					So(e.InstanceKeyPair, ShouldEqual, "test")
+					So(e.KeyPair, ShouldEqual, "test")
 				})
 			})
 
@@ -239,7 +239,7 @@ func TestEvent(t *testing.T) {
 
 		Convey("With no instance name", func() {
 			testEventInvalid := testEvent
-			testEventInvalid.InstanceName = ""
+			testEventInvalid.Name = ""
 			invalid, _ := json.Marshal(testEventInvalid)
 
 			Convey("When validating the event", func() {
@@ -255,7 +255,7 @@ func TestEvent(t *testing.T) {
 
 		Convey("With no instance image", func() {
 			testEventInvalid := testEvent
-			testEventInvalid.InstanceImage = ""
+			testEventInvalid.Image = ""
 			invalid, _ := json.Marshal(testEventInvalid)
 
 			Convey("When validating the event", func() {
